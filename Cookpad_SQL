@@ -1,9 +1,9 @@
---Check if there is duration in front of recipe view
+--Check if there is duration in front of recipe view (none)
 SELECT * from narnia_cp
 where event in ('recipe.visit')
 and view_duration not in ('NULL')
 
---Check if there is no duration in front of visit duration
+--Check if there is no duration in front of visit duration (none)
 SELECT * from narnia_cp
 where event in ('visit_duration')
 and view_duration in ('NULL')
@@ -11,37 +11,84 @@ and view_duration in ('NULL')
 
 
 /*
-Based on event i am deviding the events into 2 categories, where we can prompt a dialogue box for sharing cooksnap and where we cannot
+Based on event, I am deviding the events into 2 categories, where we can prompt a dialogue box for sharing cooksnap and where we cannot
 including events 'recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow', 'recipe.add_to_cookplan' and 'view_duration' where duration >= 600 IN Y
 else No
 */
 
 
-SELECT count(*)
-
-FROM
-	(
-	Select 
-	aa.*,
-	CASE WHEN aa.event in ('recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow', 'recipe.add_to_cookplan') then 'Y'
-		WHEN aa.event in ('recipe.share', 'recipe.edit.open', 'recipe.comments.visit', 'recipe.publish', 'recipe.visit', 'cooksnap.create') then 'N'
-		WHEN aa.event in ('view_duration') AND aa.view_duration >= 600 THEN 'Y'
-		WHEN aa.event in ('view_duration') AND aa.view_duration < 600 THEN 'N'
-		ELSE 'N' 
-		END AS CS_Notify
+	SELECT count(*)
 
 	FROM
 		(
-		SELECT 
-			a.*
-			, lag(event_time) over (PARTITION BY user_id, recipe_id order by event_time ASC) as LG
+		Select 
+		aa.*,
+		CASE WHEN aa.event in ('recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow', 'recipe.add_to_cookplan') then 'Y'
+			WHEN aa.event in ('recipe.share', 'recipe.edit.open', 'recipe.comments.visit', 'recipe.publish', 'recipe.visit', 'cooksnap.create') then 'N'
+			WHEN aa.event in ('view_duration') AND aa.view_duration >= 600 THEN 'Y'
+			WHEN aa.event in ('view_duration') AND aa.view_duration < 600 THEN 'N'
+			ELSE 'N' 
+			END AS CS_Notify
 
 		FROM
-			(SELECT * from narnia_cp
-			ORDER by 2,3,4) a
-		) aa
-	) aaa
+			(
+			SELECT 
+				a.*
+				, lag(event_time) over (PARTITION BY user_id, recipe_id order by event_time ASC) as LG
 
-WHERE CS_Notify in ('Y')
+			FROM
+				(SELECT * from narnia_cp
+				ORDER by 2,3,4) a
+			) aa
+		) aaa
+
+	WHERE CS_Notify in ('Y')
 
 /* result 21,343 distint events where we can prompt cook snap */
+
+
+
+
+/* IF WE TAKE ONLY THE LATEST 2 EVENTS FROM THE RESULT WE GET ABOVE */
+
+	SELECT * FROM (
+
+	SELECT aaa.*,
+		rOW_NUMBER () OVER (PARTITION BY user_id, recipe_id order by event_time DESC) AS rno
+
+	FROM
+		(
+		Select 
+		aa.*,
+		CASE WHEN aa.event in ('recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow', 'recipe.add_to_cookplan') then 'Y'
+			WHEN aa.event in ('recipe.share', 'recipe.edit.open', 'recipe.comments.visit', 'recipe.publish', 'recipe.visit', 'cooksnap.create') then 'N'
+			WHEN aa.event in ('view_duration') AND aa.view_duration >= 600 THEN 'Y'
+			WHEN aa.event in ('view_duration') AND aa.view_duration < 600 THEN 'N'
+			ELSE 'N' 
+			END AS CS_Notify
+
+		FROM
+			(
+			SELECT 
+				a.*
+				, lag(event_time) over (PARTITION BY user_id, recipe_id order by event_time ASC) as LG
+
+			FROM
+				(SELECT * from p_olwand_t.narnia_cp
+				ORDER by 2,3,4) a
+			) aa
+		) aaa
+
+	WHERE CS_Notify in ('Y')
+	) B
+
+	WHERE RNO <=2
+
+	/* result 19802 distint events where we can prompt cook snap. But this would be difficult to accomplish becuase it is possible that a user uses recipes
+	multiple times in a day and does not upload a cooksnap.*/
+
+
+
+
+
+
