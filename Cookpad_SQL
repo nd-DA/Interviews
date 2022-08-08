@@ -1,12 +1,20 @@
 --Check if there is duration in front of recipe view (none)
-SELECT * from narnia_cp
-where event in ('recipe.visit')
-and view_duration not in ('NULL')
+	SELECT * from narnia_cp
+	where event in ('recipe.visit')
+	and view_duration not in ('NULL')
 
 --Check if there is no duration in front of visit duration (none)
-SELECT * from narnia_cp
-where event in ('visit_duration')
-and view_duration in ('NULL')
+	SELECT * from narnia_cp
+	where event in ('visit_duration')
+	and view_duration in ('NULL')
+
+--Count recipes vited by users
+	select user_id, Distinct recipe_id
+	from narnia_cp
+	group by 1, 2
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 /*
@@ -14,7 +22,6 @@ Based on event, I am deviding the events into 2 categories, where we can prompt 
 including events 'recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow' and 'view_duration' where duration >= 600 then Yes
 else No
 */
-
 
 	SELECT count(*)
 
@@ -43,9 +50,11 @@ else No
 
 	WHERE CS_Notify in ('Y')
 
-/* result 21,343 distint events where we can prompt cook snap */
+	/* result 21,343 distint events where we can prompt cook snap */
 
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 /* IF WE TAKE ONLY THE LATEST 2 EVENTS FROM THE RESULT WE GET ABOVE */
