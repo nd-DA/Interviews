@@ -9,10 +9,9 @@ where event in ('visit_duration')
 and view_duration in ('NULL')
 
 
-
 /*
 Based on event, I am deviding the events into 2 categories, where we can prompt a dialogue box for sharing cooksnap and where we cannot
-including events 'recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow', 'recipe.add_to_cookplan' and 'view_duration' where duration >= 600 IN Y
+including events 'recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow' and 'view_duration' where duration >= 600 then Yes
 else No
 */
 
@@ -23,8 +22,8 @@ else No
 		(
 		Select 
 		aa.*,
-		CASE WHEN aa.event in ('recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow', 'recipe.add_to_cookplan') then 'Y'
-			WHEN aa.event in ('recipe.share', 'recipe.edit.open', 'recipe.comments.visit', 'recipe.publish', 'recipe.visit', 'cooksnap.create') then 'N'
+		CASE WHEN aa.event in ('recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow') then 'Y'
+			WHEN aa.event in ('recipe.share', 'recipe.edit.open', 'recipe.comments.visit', 'recipe.publish', 'recipe.visit', 'cooksnap.create', 'recipe.add_to_cookplan') then 'N'
 			WHEN aa.event in ('view_duration') AND aa.view_duration >= 600 THEN 'Y'
 			WHEN aa.event in ('view_duration') AND aa.view_duration < 600 THEN 'N'
 			ELSE 'N' 
@@ -60,8 +59,8 @@ else No
 		(
 		Select 
 		aa.*,
-		CASE WHEN aa.event in ('recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow', 'recipe.add_to_cookplan') then 'Y'
-			WHEN aa.event in ('recipe.share', 'recipe.edit.open', 'recipe.comments.visit', 'recipe.publish', 'recipe.visit', 'cooksnap.create') then 'N'
+		CASE WHEN aa.event in ('recipe.react', 'recipe.bookmark', 'recipe.cooked_it', 'cookplan.comments.create', 'user.follow') then 'Y'
+			WHEN aa.event in ('recipe.share', 'recipe.edit.open', 'recipe.comments.visit', 'recipe.publish', 'recipe.visit', 'cooksnap.create', 'recipe.add_to_cookplan') then 'N'
 			WHEN aa.event in ('view_duration') AND aa.view_duration >= 600 THEN 'Y'
 			WHEN aa.event in ('view_duration') AND aa.view_duration < 600 THEN 'N'
 			ELSE 'N' 
@@ -89,6 +88,11 @@ else No
 
 
 
+--Prompts based on view duration only
 
-
+	Select User_id, Recipe_id, View_duration from narnia_cp
+	where view_duration between 499 and 15001
+	group by 1,2
+	order by 3 desc
+  Gives a result of 
 
