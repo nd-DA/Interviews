@@ -94,5 +94,4 @@ else No
 	where view_duration between 499 and 15001
 	group by 1,2
 	order by 3 desc
-  Gives a result of 
 
