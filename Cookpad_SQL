@@ -50,7 +50,7 @@ else No
 
 	WHERE CS_Notify in ('Y')
 
-	/* result 21,343 distint events where we can prompt cook snap */
+	/* result 19605 distint events where we can prompt cook snap */
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ else No
 
 	WHERE RNO <=2
 
-	/* result 19802 distint events where we can prompt cook snap. But this would be difficult to accomplish becuase it is possible that a user uses recipes
+	/*But this would be difficult to accomplish becuase it is possible that a user uses recipes
 	multiple times in a day and does not upload a cooksnap.*/
 
 
